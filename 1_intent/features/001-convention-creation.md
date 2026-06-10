@@ -15,9 +15,8 @@ capacity planning, and participation tracking cannot start.
 
 ## Desired Outcome
 
-An organizer can create a convention with a start date, end date, free-text
-location, organizer-provided timezone, one continuous daily open-hours window,
-and maximum attendance capacity.
+An organizer can create and edit a basic convention record that establishes the
+event container required for later scheduling and participation workflows.
 
 ## Business Value
 
@@ -31,7 +30,7 @@ management.
 - Organizers can edit a convention after it is created.
 - Attendees and hosts can use the convention details to understand when and
   where scheduling applies.
-- The product can enforce event-level limits and time boundaries from the
+- The product has event-level limits and time boundaries available from the
   beginning.
 
 ## Anti-Goals

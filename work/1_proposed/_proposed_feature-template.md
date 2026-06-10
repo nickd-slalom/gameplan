@@ -6,6 +6,7 @@
 - [Owner: team or person]
 - [Date: YYYY-MM-DD]
 - [Status: draft | proposed | approved | completed]
+- [Approval Evidence: human approval reference required before implementation]
 - [Completion Report: `work/2_completed/<item>.md` when status is completed]
 
 ## Intent Reference
@@ -22,7 +23,8 @@
 
 ## Expectations
 
-[List acceptance criteria from expectations docs.]
+[List applicable acceptance criteria from active, non-template files in
+`3_expectations/`.]
 
 ## Proposed Approach
 
@@ -35,3 +37,9 @@
 ## Questions
 
 [List open issues requiring clarification.]
+
+## Approval Gate
+
+Leave `Status: proposed` until the human explicitly approves implementation.
+Agents must not self-approve proposals. Record the human approval evidence in
+Metadata before changing status to `approved` or beginning implementation.

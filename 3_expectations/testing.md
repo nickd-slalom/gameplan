@@ -1,22 +1,29 @@
-# Testing Expectations Template
+# Testing Expectations
 
 ## Required
 
-- [Required test type: scope]
-- [Required test type: scope]
+- Documentation-only changes must be validated by direct inspection of the
+  affected artifacts.
+- API contract changes between React and Django require contract or integration
+  coverage.
+- Schema changes require migration review and validation.
 
 ## Coverage Expectations
 
-[Define coverage expectations for critical paths.]
+- Cover critical scheduling and participation paths where conflicts,
+  double-bookings, capacity limits, or convention time boundaries are enforced.
 
 ## Regression Protection
 
-[Define regression test requirements for fixes.]
+- Bug fixes should include focused regression coverage when executable code is
+  involved and the failure mode can be reproduced.
 
 ## Validation
 
-[Define required validation gates before completion.]
+- Validate completed work against applicable `3_expectations/` categories before
+  closing the work item.
 
 ## Non-Functional Testing
 
-- [Performance, load, reliability, accessibility, etc.]
+- Performance-sensitive changes should include query-plan review, load testing,
+  or another proportionate validation method when latency risk is material.

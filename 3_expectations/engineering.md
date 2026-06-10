@@ -1,25 +1,38 @@
-# Engineering Expectations Template
+# Engineering Expectations
 
 ## Maintainability
 
-[Define maintainability expectations.]
+- Preserve the component boundaries defined in `2_context/architecture.md`,
+  especially server-authoritative enforcement of business-critical rules in
+  Django.
+- Preserve stable API response contracts when evolving React-to-Django
+  integration points. Use compatibility shims when needed to reduce client
+  breakage.
 
 ## Simplicity
 
-[Define simplicity standards and tradeoff guidance.]
+- Avoid adding architecture or framework complexity unless existing context
+  shows a concrete need.
 
 ## Consistency
 
-[Define consistency requirements with existing patterns.]
+- Reuse the repository's established React, Django, PostgreSQL, migration, and
+  repository-local skill patterns before introducing a new approach.
+- Apply migrations for schema evolution; avoid manual database drift.
 
 ## Observability
 
-[Define observability requirements (logs, metrics, tracing, alerts).]
+- For latency-sensitive data paths, monitor query behavior closely enough to
+  identify poor indexing before it becomes a user-facing regression.
 
 ## Performance
 
-[Define performance expectations and thresholds.]
+- Add targeted PostgreSQL indexes when query plans or expected growth indicate
+  latency risk.
+- Move expensive or long-running work out of synchronous Django request paths
+  when it would degrade responsiveness.
 
 ## Operational Readiness
 
-[Define deploy/readiness requirements.]
+- Keep asynchronous work behind Django-managed background processing or another
+  context-approved adapter boundary.

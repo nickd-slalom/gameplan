@@ -158,6 +158,12 @@ Before implementation:
 4. Discover unknowns.
 5. Form a proposed approach.
 6. Surface risks and assumptions.
+7. Stop for human approval before implementation.
+
+Human approval is mandatory for non-trivial repository changes. Agents may
+create or refine proposal artifacts, but must not self-approve a proposal or
+begin implementation until the human explicitly approves the proposed approach
+in the conversation or an existing approval record is present.
 
 During implementation:
 
@@ -260,7 +266,8 @@ Potential technical or business concerns.
 
 Unknowns that may require clarification.
 
-Only after these are understood should implementation begin.
+Only after these are understood and human approval is recorded should
+implementation begin.
 
 ---
 

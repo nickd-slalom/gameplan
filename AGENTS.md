@@ -13,7 +13,7 @@ Always perform work in this sequence:
 2. Gather Context
 3. Identify Expectations
 4. Propose Approach
-5. Await approval if uncertainty exists
+5. Await human approval
 6. Implement
 7. Validate against Expectations
 8. Update Context if new knowledge was discovered
@@ -63,6 +63,16 @@ Create a proposal file before any implementation begins. Use the template at
 
 An agent must not begin implementation until a proposal file exists and has
 been approved.
+
+Approval is a mandatory human-in-the-loop gate for all non-trivial repository
+changes. Agents may create or update a proposal file, but must stop after
+proposal creation with `Status: proposed` until the human explicitly approves
+implementation in the conversation or an existing approval record is present.
+
+Agents must not self-approve proposals. Do not set `Status: approved`, begin
+implementation, or create completion artifacts until human approval has been
+received. When approval is received, record the approval evidence in the
+proposal before implementing.
 
 **Step 2 — Complete** (`work/2_completed/`)
 

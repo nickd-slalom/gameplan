@@ -14,17 +14,12 @@
 
 ## Expectations Validation
 
-### Engineering
+For each applicable file in `3_expectations/`, record `PASS`, `PARTIAL`, or
+`FAIL` and summarize the evidence.
 
-[PASS | PARTIAL | FAIL]
+### [Expectation Category]
 
-### Testing
-
-[PASS | PARTIAL | FAIL]
-
-### Security
-
-[PASS | PARTIAL | FAIL]
+[PASS | PARTIAL | FAIL]: [validation evidence]
 
 ## Discoveries
 

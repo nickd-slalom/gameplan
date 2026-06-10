@@ -1,25 +1,25 @@
-# Security Expectations Template
+# Security Expectations
 
 ## Authentication
 
-[Define authentication requirements for this project.]
+- Authentication requirements are not yet specified.
 
 ## Authorization
 
-[Define authorization model and privilege boundaries.]
+- Authorization requirements are not yet specified.
 
 ## Secrets
 
-[Define secrets handling requirements.]
+- Do not add secrets, credentials, or tokens to repository files.
 
 ## Data Protection
 
-[Define data protection requirements (at rest and in transit).]
+- Data protection requirements are not yet specified.
 
 ## Threat Considerations
 
-- [Primary threat or abuse case]
+- No project-specific threat model has been defined yet.
 
 ## Compliance Constraints
 
-- [Applicable standard, regulation, or policy]
+- No project-specific compliance constraints have been defined yet.

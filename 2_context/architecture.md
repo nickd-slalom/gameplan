@@ -60,11 +60,15 @@ that reads and writes PostgreSQL.
 ## Architecture Risks
 
 - API contract drift between React and Django can cause runtime regressions.
-  Mitigation: version endpoints and add contract/integration tests.
+  Relevant expectations: stable API evolution in `3_expectations/engineering.md`
+  and contract or integration coverage in `3_expectations/testing.md`.
 - Long-running synchronous Django requests may degrade responsiveness.
-  Mitigation: move expensive work to background processing.
+  Relevant expectations: synchronous request performance in
+  `3_expectations/engineering.md`.
 - Poor indexing strategy in PostgreSQL can create latency under growth.
-  Mitigation: monitor query plans and add targeted indexes.
+  Relevant expectations: query monitoring and targeted indexing in
+  `3_expectations/engineering.md`.
 - Coupling UI flows tightly to backend response shape can reduce iteration
   speed.
-  Mitigation: use stable API response contracts and compatibility shims.
+  Relevant expectations: stable API response contracts and compatibility shims
+  in `3_expectations/engineering.md`.
