@@ -14,8 +14,14 @@ def env_bool(name: str, default: bool = False) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "insecure-local-development-key")
 DEBUG = env_bool("DJANGO_DEBUG", True)
+
+if os.environ.get("DJANGO_SECRET_KEY"):
+    SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+elif DEBUG:
+    SECRET_KEY = "insecure-local-development-key"
+else:
+    raise RuntimeError("DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is false.")
 
 ALLOWED_HOSTS = [
     host.strip()
