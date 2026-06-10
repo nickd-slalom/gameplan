@@ -14,7 +14,7 @@ def env_bool(name: str, default: bool = False) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
-DEBUG = env_bool("DJANGO_DEBUG", True)
+DEBUG = env_bool("DJANGO_DEBUG", False)
 
 if os.environ.get("DJANGO_SECRET_KEY"):
     SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]

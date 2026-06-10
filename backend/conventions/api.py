@@ -66,14 +66,29 @@ def form_errors_to_dict(form: ConventionWriteForm) -> dict[str, list[str]]:
         errors[key] = [entry["message"] for entry in messages]
     return errors
 
+
+KNOWN_CONSTRAINT_NAMES = {
+    "convention_end_date_on_or_after_start_date",
+    "convention_daily_close_after_open",
+    "convention_capacity_positive",
+}
+
+
 def save_form(form: ConventionWriteForm) -> tuple[Convention | None, JsonResponse | None]:
     try:
         convention = form.save()
-    except IntegrityError:
-        return None, error_response(
-            {"non_field_errors": ["Convention could not be saved."]},
-            status=409,
-        )
+    except IntegrityError as exc:
+        error_message = str(exc).lower()
+        if any(constraint_name in error_message for constraint_name in KNOWN_CONSTRAINT_NAMES):
+            return None, error_response(
+                {
+                    "non_field_errors": [
+                        "Convention data violates a database constraint."
+                    ]
+                },
+                status=409,
+            )
+        raise
 
     return convention, None
 
@@ -140,11 +155,13 @@ def convention_collection(request: HttpRequest) -> JsonResponse:
     if error:
         return error
 
-    errors = unknown_field_errors(payload or {})
+    checked_payload = payload or {}
+
+    errors = unknown_field_errors(checked_payload)
     if errors:
         return error_response(errors)
 
-    form = ConventionWriteForm(data=payload or {})
+    form = ConventionWriteForm(data=checked_payload)
     if not form.is_valid():
         return error_response(form_errors_to_dict(form))
 
@@ -166,19 +183,17 @@ def convention_detail(request: HttpRequest, convention_id: int) -> JsonResponse:
     if error:
         return error
 
-    errors = unknown_field_errors(payload or {})
+    checked_payload = payload or {}
+
+    errors = unknown_field_errors(checked_payload)
     if errors:
         return error_response(errors)
 
-    if request.method == "PATCH":
-        merged_payload = {
-            field: getattr(convention, field)
-            for field in CONVENTION_FIELDS
-        }
-        merged_payload.update(payload or {})
-        form = ConventionWriteForm(data=merged_payload, instance=convention)
-    else:
-        form = ConventionWriteForm(data=payload or {}, instance=convention)
+    form = ConventionWriteForm(
+        data=checked_payload,
+        instance=convention,
+        partial=request.method == "PATCH",
+    )
 
     if not form.is_valid():
         return error_response(form_errors_to_dict(form))
