@@ -1,17 +1,25 @@
-# Engineering Expectations
+# Engineering Expectations Template
 
 ## Maintainability
 
-Code should be understandable by a new engineer.
+[Define maintainability expectations.]
 
 ## Simplicity
 
-Prefer simplest working solution.
+[Define simplicity standards and tradeoff guidance.]
 
 ## Consistency
 
-Follow existing repository patterns.
+[Define consistency requirements with existing patterns.]
 
 ## Observability
 
-New features must produce actionable logs and metrics.
+[Define observability requirements (logs, metrics, tracing, alerts).]
+
+## Performance
+
+[Define performance expectations and thresholds.]
+
+## Operational Readiness
+
+[Define deploy/readiness requirements.]

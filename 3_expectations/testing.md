@@ -1,18 +1,22 @@
-# Testing Expectations
+# Testing Expectations Template
 
 ## Required
 
-- Unit tests for business logic
-- Integration tests for workflows
+- [Required test type]: [scope]
+- [Required test type]: [scope]
 
 ## Coverage Expectations
 
-Critical paths fully tested.
+[Define coverage expectations for critical paths.]
 
 ## Regression Protection
 
-Every bug fix includes a test.
+[Define regression test requirements for fixes.]
 
 ## Validation
 
-All tests pass before completion.
+[Define required validation gates before completion.]
+
+## Non-Functional Testing
+
+- [Performance, load, reliability, accessibility, etc.]

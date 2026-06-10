@@ -1,17 +1,25 @@
-# Security Expectations
+# Security Expectations Template
 
 ## Authentication
 
-Never bypass existing auth mechanisms.
+[Define authentication requirements for this project.]
 
 ## Authorization
 
-Enforce least privilege.
+[Define authorization model and privilege boundaries.]
 
 ## Secrets
 
-Never commit secrets.
+[Define secrets handling requirements.]
 
 ## Data Protection
 
-Sensitive data encrypted at rest and in transit.
+[Define data protection requirements (at rest and in transit).]
+
+## Threat Considerations
+
+- [Primary threat or abuse case]
+
+## Compliance Constraints
+
+- [Applicable standard, regulation, or policy]

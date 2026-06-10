@@ -1,19 +1,23 @@
-# Preferred Engineering Patterns
+# Preferred Engineering Patterns Template
 
 ## API Design
 
-- REST first
-- Consistent error model
+- [Preferred API style]
+- [Error handling pattern]
 
 ## Frontend
 
-- Reuse existing design system
-- Avoid custom component libraries
+- [UI architecture preference]
+- [Component and styling guidance]
 
 ## Data Access
 
-- Repository pattern
+- [Data access pattern]
 
 ## Testing
 
-- Integration tests preferred over mocks
+- [Testing strategy preference]
+
+## Additional Patterns
+
+- [Pattern name]: [when to use]

@@ -1,27 +1,31 @@
-# Product Intent
+# Product Intent Template
 
 ## Mission
 
-Describe why this product exists.
-
-Example:
-
-Enable small businesses to manage inventory with minimal operational overhead.
+[Describe why this product exists.]
 
 ## Desired Outcomes
 
-- Reduce manual inventory tracking
-- Improve stock visibility
-- Reduce stockouts
+- [Outcome 1]
+- [Outcome 2]
+- [Outcome 3]
 
 ## Anti-Goals
 
-- Not an ERP
-- Not an accounting system
-- Not a CRM
+- [Anti-goal 1]
+- [Anti-goal 2]
+- [Anti-goal 3]
 
 ## Success Indicators
 
-- Inventory updates require <30 seconds
-- Users can locate stock immediately
-- New employees require minimal training
+- [Metric name]: [target]
+- [Metric name]: [target]
+- [Metric name]: [target]
+
+## Assumptions
+
+- [Assumption to validate]
+
+## Open Questions
+
+- [Question needing clarification]

@@ -1,21 +1,24 @@
-# Constraints
+# Constraints Template
 
 ## Technical
 
-- TypeScript required
-- PostgreSQL required
-- Existing REST APIs remain stable
+- [Technology or platform constraint]
+- [Compatibility constraint]
 
 ## Operational
 
-- Deploy through GitHub Actions
-- Zero downtime deployments
+- [Deployment/runtime constraint]
+- [Reliability/availability constraint]
 
 ## Regulatory
 
-- GDPR compliance
-- Audit logging
+- [Compliance requirement]
+- [Audit/reporting requirement]
 
 ## Performance
 
-- p95 API latency < 300ms
+- [Metric]: [target threshold]
+
+## Resource Constraints
+
+- [Timeline, staffing, budget, or tooling constraint]

@@ -1,24 +1,27 @@
-# Architecture Context
+# Architecture Context Template
 
 ## System Overview
 
-High-level architecture.
+[High-level architecture summary.]
 
 ## Major Components
 
-- API
-- Database
-- Frontend
-- Background jobs
+- [Component]: [purpose]
+- [Component]: [purpose]
+- [Component]: [purpose]
 
 ## Boundaries
 
-What each component owns.
+[Define ownership boundaries for each component.]
 
 ## Integration Points
 
-External systems and dependencies.
+[List external systems and key dependencies.]
 
 ## Existing Patterns
 
-Patterns agents should prefer.
+[List architecture patterns contributors should prefer.]
+
+## Architecture Risks
+
+- [Risk and mitigation]

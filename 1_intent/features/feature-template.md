@@ -1,25 +1,32 @@
-# Feature Intent
+# Feature Intent Template
+
+## Metadata
+
+- Feature Name: [name]
+- Owner: [team or person]
+- Status: [draft | proposed | approved]
+- Last Updated: [YYYY-MM-DD]
 
 ## Problem
 
-What user problem exists?
+[Describe the user or business problem this feature addresses.]
 
 ## Desired Outcome
 
-What changes after success?
+[Describe what will be measurably different after delivery.]
 
 ## Business Value
 
-Why should this exist?
+[Explain why this matters to the business.]
 
 ## User Impact
 
-Who benefits?
+[Who is affected and how?]
 
 ## Anti-Goals
 
-What is explicitly out of scope?
+[List what is explicitly out of scope.]
 
 ## Unknowns
 
-Questions requiring discovery.
+[List unanswered questions requiring discovery.]
