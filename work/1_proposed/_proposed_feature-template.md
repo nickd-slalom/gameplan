@@ -5,7 +5,8 @@
 - [Work Item: name]
 - [Owner: team or person]
 - [Date: YYYY-MM-DD]
-- [Status: draft | proposed | approved]
+- [Status: draft | proposed | approved | completed]
+- [Completion Report: `work/2_completed/<item>.md` when status is completed]
 
 ## Intent Reference
 

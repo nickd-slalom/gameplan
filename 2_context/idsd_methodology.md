@@ -230,6 +230,12 @@ To avoid redundancy:
 When details overlap, keep full detail in the primary artifact and link from
 the secondary artifact.
 
+Completed work should still be visible from the original proposal. Keep the
+proposal file in `work/1_proposed/`, update its status to `completed`, and add
+a link to the matching `work/2_completed/<item>.md` report. The proposal should
+not duplicate completion outcomes, validation details, discoveries, or
+follow-up work.
+
 ### Intent Summary
 
 A concise explanation of the desired outcome.

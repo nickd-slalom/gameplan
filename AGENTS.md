@@ -43,6 +43,12 @@ completion status.
 work/1_proposed/<item>.md   →   work/2_completed/<item>.md
 ```
 
+Completed work remains visible from its proposal file. When a work item is
+completed, keep the proposal in `work/1_proposed/`, update its status to
+`completed`, and add a link to the corresponding completion report. Do not
+duplicate outcome, validation, discovery, or follow-up details in the proposal;
+those belong in `work/2_completed/`.
+
 **Step 1 — Propose** (`work/1_proposed/`)
 
 Create a proposal file before any implementation begins. Use the template at
@@ -71,7 +77,9 @@ When implementation is finished, create a completion report in
 - Follow-up work identified
 
 Recommended context updates must be applied to the relevant files in
-`2_context/` before the work item is considered closed.
+`2_context/` before the work item is considered closed. The corresponding
+proposal in `work/1_proposed/` must also be marked `completed` and linked to
+the completion report.
 
 ## Required Deliverables
 
@@ -86,6 +94,8 @@ Before significant implementation:
 After implementation:
 
 - completion report in `work/2_completed/`
+- proposal status updated to `completed`
+- completion report link added to the proposal file
 - expectation validation
 - discovered knowledge
 - recommended context updates applied to `2_context/`

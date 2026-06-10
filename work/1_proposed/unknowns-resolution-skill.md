@@ -5,7 +5,8 @@
 - Work Item: Unknowns Resolution Skill
 - Owner: Product
 - Date: 2026-06-10
-- Status: approved
+- Status: completed
+- Completion Report: `work/2_completed/unknowns-resolution-skill.md`
 
 ## Intent Reference
 
