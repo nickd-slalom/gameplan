@@ -5,6 +5,8 @@
 - Convention creation must capture a start date, end date, free-text location,
   organizer-provided timezone, one continuous daily open-hours window, and
   maximum attendance capacity.
+- Timezone selection must use standard IANA timezone identifiers and present
+  them through a selectable UI rather than free-text entry.
 - Convention editing must preserve the same core convention definition fields
   after creation.
 

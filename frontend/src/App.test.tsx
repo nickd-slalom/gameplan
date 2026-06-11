@@ -12,6 +12,14 @@ function makeJsonResponse(body: FetchJson, status = 200): Response {
   });
 }
 
+const timezoneOptions = [
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "America/New_York",
+  "UTC",
+];
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -21,7 +29,8 @@ describe("App", () => {
   it("shows client-side validation errors when create form is submitted empty", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(makeJsonResponse({ conventions: [] }));
+      .mockResolvedValueOnce(makeJsonResponse({ conventions: [] }))
+      .mockResolvedValueOnce(makeJsonResponse({ timezones: timezoneOptions }));
 
     render(<App />);
 
@@ -36,7 +45,7 @@ describe("App", () => {
       screen.getByText("Maximum attendance capacity is required."),
     ).toBeInTheDocument();
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("creates a convention and shows success status", async () => {
@@ -46,7 +55,7 @@ describe("App", () => {
       start_date: "2026-08-01",
       end_date: "2026-08-03",
       location: "Seattle Convention Center",
-      timezone: "America/Los_Angeles",
+      timezone: "America/Denver",
       daily_open_time: "09:00:00",
       daily_close_time: "22:00:00",
       maximum_attendance_capacity: 750,
@@ -57,6 +66,7 @@ describe("App", () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(makeJsonResponse({ conventions: [] }))
+      .mockResolvedValueOnce(makeJsonResponse({ timezones: timezoneOptions }))
       .mockResolvedValueOnce(makeJsonResponse({ convention: createdConvention }, 201));
 
     render(<App />);
@@ -66,8 +76,7 @@ describe("App", () => {
     await user.type(screen.getByLabelText("Location"), createdConvention.location);
     await user.type(screen.getByLabelText("Start date"), createdConvention.start_date);
     await user.type(screen.getByLabelText("End date"), createdConvention.end_date);
-    await user.clear(screen.getByLabelText("Timezone"));
-    await user.type(screen.getByLabelText("Timezone"), createdConvention.timezone);
+    await user.selectOptions(screen.getByLabelText("Timezone"), createdConvention.timezone);
     await user.clear(screen.getByLabelText("Maximum attendance"));
     await user.type(
       screen.getByLabelText("Maximum attendance"),
@@ -83,7 +92,7 @@ describe("App", () => {
       );
     });
 
-    const postRequest = fetchMock.mock.calls[1];
+    const postRequest = fetchMock.mock.calls[2];
     const postInit = postRequest[1] as { body?: string };
     const postBody = JSON.parse(String(postInit.body));
     expect(postBody).toMatchObject({
@@ -127,12 +136,15 @@ describe("App", () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(makeJsonResponse({ conventions: [existingConvention] }))
+      .mockResolvedValueOnce(makeJsonResponse({ timezones: timezoneOptions }))
       .mockResolvedValueOnce(makeJsonResponse({ convention: updatedConvention }));
 
     render(<App />);
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole("button", { name: /River City Open/i }));
+
+    expect(screen.getByLabelText("Timezone")).toHaveValue(existingConvention.timezone);
 
     const locationInput = screen.getByLabelText("Location");
     await user.clear(locationInput);
@@ -147,7 +159,7 @@ describe("App", () => {
       );
     });
 
-    const putRequest = fetchMock.mock.calls[1];
+    const putRequest = fetchMock.mock.calls[2];
     const putInit = putRequest[1] as { body?: string };
     const putBody = JSON.parse(String(putInit.body));
     expect(putBody.location).toBe(updatedConvention.location);

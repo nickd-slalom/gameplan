@@ -50,14 +50,6 @@ const fallbackTimezoneOptions = [
   "UTC",
 ];
 
-function getTimezoneOptions() {
-  if (typeof Intl.supportedValuesOf === "function") {
-    return Intl.supportedValuesOf("timeZone");
-  }
-
-  return fallbackTimezoneOptions;
-}
-
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "";
 
 function normalizeTime(value: string) {
@@ -168,7 +160,7 @@ function ErrorList({ id, errors }: { id: string; errors?: string[] }) {
 }
 
 function App() {
-  const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
+  const [timezoneOptions, setTimezoneOptions] = useState<string[]>([]);
   const [conventions, setConventions] = useState<Convention[]>([]);
   const [form, setForm] = useState<ConventionFormState>(emptyForm);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -176,6 +168,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const [timezoneStatusMessage, setTimezoneStatusMessage] = useState("");
 
   const selectedConvention = useMemo(
     () => conventions.find((convention) => convention.id === selectedConventionId) ?? null,
@@ -199,9 +192,33 @@ function App() {
     }
   }
 
+  async function loadTimezoneOptions() {
+    setTimezoneStatusMessage("");
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/conventions/timezones/`);
+      if (!response.ok) {
+        throw new Error("Unable to load timezone options.");
+      }
+      const body = (await response.json()) as { timezones: string[] };
+      setTimezoneOptions(body.timezones);
+    } catch {
+      setTimezoneOptions(fallbackTimezoneOptions);
+      setTimezoneStatusMessage("Timezone options could not be loaded. Showing common choices.");
+    }
+  }
+
   useEffect(() => {
     void loadConventions();
+    void loadTimezoneOptions();
   }, []);
+
+  const availableTimezoneOptions = useMemo(() => {
+    if (!form.timezone || timezoneOptions.includes(form.timezone)) {
+      return timezoneOptions;
+    }
+
+    return [form.timezone, ...timezoneOptions];
+  }, [form.timezone, timezoneOptions]);
 
   function updateField(field: keyof ConventionFormState, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -303,6 +320,11 @@ function App() {
           {statusMessage ? (
             <p className="status-message" role="status">
               {statusMessage}
+            </p>
+          ) : null}
+          {timezoneStatusMessage ? (
+            <p className="status-message" role="status">
+              {timezoneStatusMessage}
             </p>
           ) : null}
 
@@ -413,26 +435,21 @@ function App() {
               <div className="field-grid">
                 <div className="field">
                   <label htmlFor="timezone">Timezone</label>
-                  <input
+                  <select
                     aria-describedby={errors.timezone ? "timezone-errors" : undefined}
                     aria-invalid={errors.timezone ? "true" : "false"}
-                    autoComplete="off"
-                    list="timezone-options"
                     id="timezone"
                     name="timezone"
-                    placeholder="America/New_York"
-                    type="text"
                     value={form.timezone}
                     onChange={(event) => updateField("timezone", event.target.value)}
-                  />
-                  <datalist id="timezone-options">
-                    {timezoneOptions.map((timezone) => (
+                  >
+                    {availableTimezoneOptions.map((timezone) => (
                       <option key={timezone} value={timezone}>
                         {timezone}
                       </option>
                     ))}
-                  </datalist>
-                  <p className="field-hint">Use an IANA timezone like America/New_York.</p>
+                  </select>
+                  <p className="field-hint">Select the convention scheduling timezone.</p>
                   <ErrorList id="timezone-errors" errors={errors.timezone} />
                 </div>
 

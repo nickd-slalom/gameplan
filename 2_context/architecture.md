@@ -61,6 +61,10 @@ that reads and writes PostgreSQL.
   presence.
 - For frontend behavior coverage, use Vitest with Testing Library under
   `frontend/src/*.test.tsx` for form and interaction workflows.
+- Convention timezone options are served by Django from Python
+  `zoneinfo.available_timezones()` so the client and server use the same IANA
+  timezone source family while Django keeps final timezone validation
+  server-authoritative.
 
 ## Architecture Risks
 

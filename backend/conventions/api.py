@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from typing import Any
+from zoneinfo import available_timezones
 
 from django.db import IntegrityError
 from django.http import HttpRequest, JsonResponse
@@ -172,6 +173,11 @@ def convention_collection(request: HttpRequest) -> JsonResponse:
         return error
 
     return JsonResponse({"convention": serialize_convention(convention)}, status=201)
+
+
+@require_http_methods(["GET"])
+def timezone_options(_request: HttpRequest) -> JsonResponse:
+    return JsonResponse({"timezones": sorted(available_timezones())})
 
 
 @csrf_exempt
