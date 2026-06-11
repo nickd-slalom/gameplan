@@ -6,6 +6,7 @@ from typing import Any
 from django.db import IntegrityError
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .forms import CONVENTION_FIELDS, ConventionWriteForm
@@ -128,6 +129,7 @@ def parse_pagination(request: HttpRequest) -> tuple[tuple[int, int] | None, Json
     return (resolved_offset, resolved_limit), None
 
 
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def convention_collection(request: HttpRequest) -> JsonResponse:
     if request.method == "GET":
@@ -172,6 +174,7 @@ def convention_collection(request: HttpRequest) -> JsonResponse:
     return JsonResponse({"convention": serialize_convention(convention)}, status=201)
 
 
+@csrf_exempt
 @require_http_methods(["GET", "PUT", "PATCH"])
 def convention_detail(request: HttpRequest, convention_id: int) -> JsonResponse:
     convention = get_object_or_404(Convention, id=convention_id)
