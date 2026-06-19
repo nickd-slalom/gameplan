@@ -12,12 +12,13 @@
 Convention attendees who want to host a game need a clear way to publish that
 session directly into the convention schedule. Without this, game planning
 happens outside the platform and attendees cannot reliably see what hosted games
-exist.
+exist. This workflow also requires identifiable authenticated users so hosted
+games can be attributed to the attendee who created them.
 
 ## Desired Outcome
 
-A host attendee can create a game session tied to a convention schedule, and
-other attendees can view that hosted game in the schedule.
+An authenticated host attendee can create a game session tied to a convention
+schedule, and other attendees can view that hosted game in the schedule.
 
 ## Business Value
 
@@ -30,6 +31,8 @@ later participation workflows.
 
 - Host attendees can submit a game session with essential details needed for
   scheduling visibility.
+- Hosted game entries are attributable to the authenticated attendee who
+  created them.
 - Player attendees can find host-created sessions in the schedule.
 - Organizers gain better visibility into hosted activity.
 
@@ -49,3 +52,5 @@ later participation workflows.
 - Whether organizer approval is required before a host-created game is shown in
   the schedule.
 - Whether unpublished draft games are needed before a host publishes.
+- Whether any organizer-visible host metadata beyond account identity is needed
+  for schedule moderation.
