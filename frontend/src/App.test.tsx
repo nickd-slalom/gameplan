@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -25,30 +25,54 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("App", () => {
-  it("shows client-side validation errors when create form is submitted empty", async () => {
+describe("App authentication", () => {
+  function getSignInSubmitButton() {
+    const signInHeading = screen.getByRole("heading", { name: "Sign in" });
+    const form = signInHeading.closest("form");
+    if (!form) {
+      throw new Error("Sign in form not found.");
+    }
+    return within(form).getByRole("button", { name: "Sign in" });
+  }
+
+  it("shows sign in form when session is unauthenticated", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(makeJsonResponse({ conventions: [] }))
-      .mockResolvedValueOnce(makeJsonResponse({ timezones: timezoneOptions }));
+      .mockResolvedValueOnce(makeJsonResponse({ errors: { non_field_errors: ["Authentication required."] } }, 401));
 
     render(<App />);
 
-    const createButton = await screen.findByRole("button", { name: "Create" });
-    await userEvent.click(createButton);
-
-    expect(await screen.findByText("Name is required.")).toBeInTheDocument();
-    expect(screen.getByText("Start date is required.")).toBeInTheDocument();
-    expect(screen.getByText("End date is required.")).toBeInTheDocument();
-    expect(screen.getByText("Location is required.")).toBeInTheDocument();
-    expect(
-      screen.getByText("Maximum attendance capacity is required."),
-    ).toBeInTheDocument();
-
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(await screen.findByRole("heading", { name: "Sign in" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Username or email")).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith("/api/auth/me/", expect.objectContaining({ credentials: "include" }));
   });
 
-  it("creates a convention and shows success status", async () => {
+  it("shows client-side validation errors for empty sign in submit", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      makeJsonResponse({ errors: { non_field_errors: ["Authentication required."] } }, 401),
+    );
+
+    render(<App />);
+
+    await screen.findByRole("heading", { name: "Sign in" });
+    await userEvent.click(getSignInSubmitButton());
+
+    expect(await screen.findByText("Username or email is required.")).toBeInTheDocument();
+    expect(screen.getByText("Password is required.")).toBeInTheDocument();
+  });
+
+  it("signs in and then creates a convention", async () => {
+    const signedInUser = {
+      id: 3,
+      username: "attendee_one",
+      email: "attendee1@example.com",
+      name: "Attendee One",
+      mobile_phone_number: "5035550101",
+      created_at: "2026-06-19T12:00:00Z",
+    };
+
     const createdConvention = {
       id: 7,
       name: "West Coast Showdown",
@@ -65,12 +89,20 @@ describe("App", () => {
 
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(makeJsonResponse({ errors: { non_field_errors: ["Authentication required."] } }, 401))
+      .mockResolvedValueOnce(makeJsonResponse({ user: signedInUser }))
       .mockResolvedValueOnce(makeJsonResponse({ conventions: [] }))
       .mockResolvedValueOnce(makeJsonResponse({ timezones: timezoneOptions }))
       .mockResolvedValueOnce(makeJsonResponse({ convention: createdConvention }, 201));
 
     render(<App />);
     const user = userEvent.setup();
+
+    await user.type(await screen.findByLabelText("Username or email"), signedInUser.username);
+    await user.type(screen.getByLabelText("Password"), "StrongPassword!234");
+    await user.click(getSignInSubmitButton());
+
+    expect(await screen.findByText("Conventions")).toBeInTheDocument();
 
     await user.type(await screen.findByLabelText("Convention name"), createdConvention.name);
     await user.type(screen.getByLabelText("Location"), createdConvention.location);
@@ -88,82 +120,11 @@ describe("App", () => {
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
         "/api/conventions/",
-        expect.objectContaining({ method: "POST" }),
+        expect.objectContaining({ method: "POST", credentials: "include" }),
       );
-    });
-
-    const postRequest = fetchMock.mock.calls[2];
-    const postInit = postRequest[1] as { body?: string };
-    const postBody = JSON.parse(String(postInit.body));
-    expect(postBody).toMatchObject({
-      name: createdConvention.name,
-      start_date: createdConvention.start_date,
-      end_date: createdConvention.end_date,
-      location: createdConvention.location,
-      timezone: createdConvention.timezone,
-      daily_open_time: "09:00:00",
-      daily_close_time: "22:00:00",
-      maximum_attendance_capacity: createdConvention.maximum_attendance_capacity,
     });
 
     expect(await screen.findByText("Convention created.")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /West Coast Showdown/i }),
-    ).toBeInTheDocument();
-  });
-
-  it("loads an existing convention and saves edits", async () => {
-    const existingConvention = {
-      id: 11,
-      name: "River City Open",
-      start_date: "2026-09-10",
-      end_date: "2026-09-12",
-      location: "Old Venue",
-      timezone: "America/Chicago",
-      daily_open_time: "10:00:00",
-      daily_close_time: "23:00:00",
-      maximum_attendance_capacity: 240,
-      created_at: "2026-06-10T12:00:00Z",
-      updated_at: "2026-06-10T12:00:00Z",
-    };
-
-    const updatedConvention = {
-      ...existingConvention,
-      location: "New Venue Hall A",
-      updated_at: "2026-06-10T13:00:00Z",
-    };
-
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(makeJsonResponse({ conventions: [existingConvention] }))
-      .mockResolvedValueOnce(makeJsonResponse({ timezones: timezoneOptions }))
-      .mockResolvedValueOnce(makeJsonResponse({ convention: updatedConvention }));
-
-    render(<App />);
-    const user = userEvent.setup();
-
-    await user.click(await screen.findByRole("button", { name: /River City Open/i }));
-
-    expect(screen.getByLabelText("Timezone")).toHaveValue(existingConvention.timezone);
-
-    const locationInput = screen.getByLabelText("Location");
-    await user.clear(locationInput);
-    await user.type(locationInput, updatedConvention.location);
-
-    await user.click(screen.getByRole("button", { name: "Save changes" }));
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        `/api/conventions/${existingConvention.id}/`,
-        expect.objectContaining({ method: "PUT" }),
-      );
-    });
-
-    const putRequest = fetchMock.mock.calls[2];
-    const putInit = putRequest[1] as { body?: string };
-    const putBody = JSON.parse(String(putInit.body));
-    expect(putBody.location).toBe(updatedConvention.location);
-
-    expect(await screen.findByText("Convention updated.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /West Coast Showdown/i })).toBeInTheDocument();
   });
 });

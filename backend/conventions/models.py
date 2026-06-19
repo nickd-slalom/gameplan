@@ -1,7 +1,48 @@
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+
+
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
+    name = models.CharField(max_length=200)
+    mobile_phone_number = models.CharField(max_length=32)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(name__gt=""),
+                name="user_name_not_blank",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(mobile_phone_number__gt=""),
+                name="user_mobile_phone_number_not_blank",
+            ),
+        ]
+
+    def clean(self) -> None:
+        errors = {}
+
+        if self.name is not None:
+            self.name = self.name.strip()
+        if self.mobile_phone_number is not None:
+            self.mobile_phone_number = self.mobile_phone_number.strip()
+
+        if not self.name:
+            errors["name"] = ["Name is required."]
+
+        if not self.mobile_phone_number:
+            errors["mobile_phone_number"] = ["Mobile phone number is required."]
+
+        if errors:
+            raise ValidationError(errors)
+
+    def __str__(self) -> str:
+        return self.username
 
 
 class Convention(models.Model):

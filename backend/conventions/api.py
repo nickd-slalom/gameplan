@@ -4,14 +4,17 @@ import json
 from typing import Any
 from zoneinfo import available_timezones
 
+from django.contrib.auth import login, logout
 from django.db import IntegrityError
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from .forms import CONVENTION_FIELDS, ConventionWriteForm
-from .models import Convention
+from .forms import CONVENTION_FIELDS, ConventionWriteForm, UserSignInForm, UserSignUpForm
+from .models import Convention, User
+
+AUTH_BACKEND_PATH = "conventions.auth_backends.UsernameOrEmailBackend"
 
 DEFAULT_LIMIT = 50
 MAX_LIMIT = 200
@@ -33,6 +36,17 @@ def serialize_convention(convention: Convention) -> dict[str, Any]:
     }
 
 
+def serialize_user(user: User) -> dict[str, Any]:
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "name": user.name,
+        "mobile_phone_number": user.mobile_phone_number,
+        "created_at": user.created_at.isoformat(),
+    }
+
+
 def parse_json_body(request: HttpRequest) -> tuple[dict[str, Any] | None, JsonResponse | None]:
     try:
         payload = json.loads(request.body.decode("utf-8") or "{}")
@@ -51,8 +65,8 @@ def error_response(errors: dict[str, list[str]], status: int = 400) -> JsonRespo
     return JsonResponse({"errors": errors}, status=status)
 
 
-def unknown_field_errors(payload: dict[str, Any]) -> dict[str, list[str]]:
-    unknown_fields = sorted(set(payload) - set(CONVENTION_FIELDS))
+def unknown_field_errors(payload: dict[str, Any], allowed_fields: tuple[str, ...]) -> dict[str, list[str]]:
+    unknown_fields = sorted(set(payload) - set(allowed_fields))
     if unknown_fields:
         return {
             "non_field_errors": ["Unknown field(s): " + ", ".join(unknown_fields) + "."]
@@ -61,7 +75,7 @@ def unknown_field_errors(payload: dict[str, Any]) -> dict[str, list[str]]:
     return {}
 
 
-def form_errors_to_dict(form: ConventionWriteForm) -> dict[str, list[str]]:
+def form_errors_to_dict(form) -> dict[str, list[str]]:
     errors: dict[str, list[str]] = {}
     for field, messages in form.errors.get_json_data().items():
         key = "non_field_errors" if field == "__all__" else field
@@ -160,7 +174,7 @@ def convention_collection(request: HttpRequest) -> JsonResponse:
 
     checked_payload = payload or {}
 
-    errors = unknown_field_errors(checked_payload)
+    errors = unknown_field_errors(checked_payload, CONVENTION_FIELDS)
     if errors:
         return error_response(errors)
 
@@ -194,7 +208,7 @@ def convention_detail(request: HttpRequest, convention_id: int) -> JsonResponse:
 
     checked_payload = payload or {}
 
-    errors = unknown_field_errors(checked_payload)
+    errors = unknown_field_errors(checked_payload, CONVENTION_FIELDS)
     if errors:
         return error_response(errors)
 
@@ -212,3 +226,73 @@ def convention_detail(request: HttpRequest, convention_id: int) -> JsonResponse:
         return error
 
     return JsonResponse({"convention": serialize_convention(convention)})
+
+
+SIGNUP_FIELDS = (
+    "username",
+    "email",
+    "name",
+    "mobile_phone_number",
+    "password1",
+    "password2",
+)
+
+SIGNIN_FIELDS = ("identifier", "password")
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def auth_signup(request: HttpRequest) -> JsonResponse:
+    payload, error = parse_json_body(request)
+    if error:
+        return error
+
+    checked_payload = payload or {}
+    errors = unknown_field_errors(checked_payload, SIGNUP_FIELDS)
+    if errors:
+        return error_response(errors)
+
+    form = UserSignUpForm(data=checked_payload)
+    if not form.is_valid():
+        return error_response(form_errors_to_dict(form))
+
+    user = form.save()
+    login(request, user, backend=AUTH_BACKEND_PATH)
+    return JsonResponse({"user": serialize_user(user)}, status=201)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def auth_signin(request: HttpRequest) -> JsonResponse:
+    payload, error = parse_json_body(request)
+    if error:
+        return error
+
+    checked_payload = payload or {}
+    errors = unknown_field_errors(checked_payload, SIGNIN_FIELDS)
+    if errors:
+        return error_response(errors)
+
+    form = UserSignInForm(data=checked_payload, request=request)
+    if not form.is_valid():
+        return error_response(form_errors_to_dict(form))
+
+    user = form.user
+    login(request, user)
+    return JsonResponse({"user": serialize_user(user)})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def auth_signout(request: HttpRequest) -> JsonResponse:
+    logout(request)
+    return JsonResponse({"signed_out": True})
+
+
+@require_http_methods(["GET"])
+def auth_me(request: HttpRequest) -> JsonResponse:
+    if not request.user.is_authenticated:
+        return error_response({"non_field_errors": ["Authentication required."]}, status=401)
+
+    user = User.objects.get(pk=request.user.pk)
+    return JsonResponse({"user": serialize_user(user)})

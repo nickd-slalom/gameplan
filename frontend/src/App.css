@@ -58,6 +58,17 @@ textarea:focus-visible {
   padding: 1rem 1.25rem;
 }
 
+.auth-nav {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.auth-nav__name {
+  color: #4f5b66;
+  font-weight: 700;
+}
+
 .app-title {
   margin: 0;
   font-size: 1.25rem;
@@ -73,6 +84,11 @@ textarea:focus-visible {
 .workspace {
   display: grid;
   gap: 1.25rem;
+}
+
+.auth-workspace {
+  margin: 0 auto;
+  max-width: 48rem;
 }
 
 .workspace__header {

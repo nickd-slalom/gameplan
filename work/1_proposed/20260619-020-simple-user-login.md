@@ -5,9 +5,9 @@
 - [Work Item: Simple User Login Foundation]
 - [Owner: Backend + Frontend]
 - [Date: 2026-06-19]
-- [Status: proposed]
-- [Approval Evidence: Pending human approval]
-- [Completion Report: `work/2_completed/20260619-020-simple-user-login.md` when complete]
+- [Status: completed]
+- [Approval Evidence: User approval in chat on 2026-06-19: "implement this work item."]
+- [Completion Report: `work/2_completed/20260619-020-simple-user-login.md`]
 
 ## Intent Reference
 

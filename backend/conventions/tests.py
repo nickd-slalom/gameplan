@@ -1,11 +1,12 @@
 import json
 from datetime import date, time
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from .models import Convention
+from .models import Convention, User
 
 
 def valid_convention_attrs(**overrides):
@@ -269,3 +270,122 @@ class ConventionApiTests(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("non_field_errors", response.json()["errors"])
+
+
+def valid_signup_payload(**overrides):
+    payload = {
+        "username": "attendee_one",
+        "email": "attendee1@example.com",
+        "name": "Attendee One",
+        "mobile_phone_number": "5035550101",
+        "password1": "StrongPassword!234",
+        "password2": "StrongPassword!234",
+    }
+    payload.update(overrides)
+    return payload
+
+
+def valid_signin_payload(**overrides):
+    payload = {
+        "identifier": "attendee_one",
+        "password": "StrongPassword!234",
+    }
+    payload.update(overrides)
+    return payload
+
+
+class AuthApiTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def post_json(self, url, payload):
+        return self.client.post(
+            url,
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+    def create_user(self):
+        return User.objects.create_user(
+            username="attendee_one",
+            email="attendee1@example.com",
+            name="Attendee One",
+            mobile_phone_number="5035550101",
+            password="StrongPassword!234",
+        )
+
+    def test_signup_creates_user_logs_in_and_returns_stable_contract(self):
+        response = self.post_json(reverse("auth_signup"), valid_signup_payload())
+
+        self.assertEqual(response.status_code, 201)
+        body = response.json()
+        self.assertEqual(body["user"]["username"], "attendee_one")
+        self.assertEqual(body["user"]["email"], "attendee1@example.com")
+        self.assertEqual(body["user"]["name"], "Attendee One")
+        self.assertEqual(body["user"]["mobile_phone_number"], "5035550101")
+        self.assertNotIn("password", body["user"])
+
+        me_response = self.client.get(reverse("auth_me"))
+        self.assertEqual(me_response.status_code, 200)
+        self.assertEqual(me_response.json()["user"]["username"], "attendee_one")
+
+    def test_signup_rejects_duplicate_email(self):
+        self.create_user()
+
+        response = self.post_json(
+            reverse("auth_signup"),
+            valid_signup_payload(username="attendee_two"),
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("email", response.json()["errors"])
+
+    def test_signin_accepts_username(self):
+        self.create_user()
+
+        response = self.post_json(reverse("auth_signin"), valid_signin_payload())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["user"]["username"], "attendee_one")
+
+    def test_signin_accepts_email(self):
+        self.create_user()
+
+        response = self.post_json(
+            reverse("auth_signin"),
+            valid_signin_payload(identifier="attendee1@example.com"),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["user"]["email"], "attendee1@example.com")
+
+    def test_signin_rejects_invalid_credentials(self):
+        self.create_user()
+
+        response = self.post_json(
+            reverse("auth_signin"),
+            valid_signin_payload(password="wrong-password"),
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("non_field_errors", response.json()["errors"])
+
+    def test_auth_me_requires_active_session(self):
+        response = self.client.get(reverse("auth_me"))
+
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("non_field_errors", response.json()["errors"])
+
+    def test_signout_clears_active_session(self):
+        self.create_user()
+        signin_response = self.post_json(reverse("auth_signin"), valid_signin_payload())
+        self.assertEqual(signin_response.status_code, 200)
+
+        signout_response = self.post_json(reverse("auth_signout"), {})
+        self.assertEqual(signout_response.status_code, 200)
+
+        me_response = self.client.get(reverse("auth_me"))
+        self.assertEqual(me_response.status_code, 401)
+
+    def test_session_timeout_policy_is_one_hour(self):
+        self.assertEqual(settings.SESSION_COOKIE_AGE, 3600)

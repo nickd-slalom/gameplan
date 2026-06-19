@@ -65,6 +65,10 @@ that reads and writes PostgreSQL.
   `zoneinfo.available_timezones()` so the client and server use the same IANA
   timezone source family while Django keeps final timezone validation
   server-authoritative.
+- For custom authentication user models (`AUTH_USER_MODEL`), Django requires
+  the swappable user model to be created in the app's initial migration
+  (`__first__`) so dependent app migrations (for example admin) can resolve the
+  relation during test database setup and migration planning.
 
 ## Architecture Risks
 
